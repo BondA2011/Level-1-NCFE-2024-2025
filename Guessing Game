@@ -1,0 +1,71 @@
+# A library is a bunch of code from the internet or our computer
+# so that we do not need to code everything
+import random
+
+def check_num(player_input):
+    # Check if it is a number, otherwise handle the error
+    try:
+        int(player_input)
+    except ValueError:
+        return False # The input is not a number
+    else:
+        return True # The input is a number
+    
+# A function is a block of code that carries out a specific task
+def guessing_game():
+    # A variable stores a value
+    random_num = random.randint(1, 20) # Random number between 1 and 20
+    lives = 5
+    game_over = False # A Boolean value is either True or False
+    #print(random_num)
+    while not game_over:
+        print("You have", lives, "lives")
+        # Software input = value entered on the keyboard
+        # An integer is a whole number, e.g. -3. 4. 0, -45, 346
+        player_guess = int(input("Guess between 1-20: "))
+        print(player_guess, "is your guess")
+        if player_guess > random_num:
+            print("Too big! Try again.")
+            lives -= 1
+            # lives = lives - 1
+        # elif is just another if statement, means else if
+        elif player_guess < random_num:
+            print("Too small! Try again.")
+            lives -= 1
+        # = gives the value to a variable
+        # == checks if the left is the same as the right
+        elif player_guess == random_num:
+            print("Well done!")
+            game_over = True
+
+        # stop the game when all lives lost
+        if lives == 0:
+            print("Game over")
+            game_over = True
+
+# Here starts the main part of the code
+guessing_game()
+
+playing = True
+while playing:
+    answer_yes = input("Do you still want to play? y/n: ").lower() # Converts all to lower case
+    if answer_yes == "y": # acceptable y or Y
+        guessing_game()
+    elif answer_yes == "n": # acceptable N or n
+        print("Thank you for playing.")
+        playing = False
+    else:
+        print(answer_yes, "is not an accaptable answer (y/n)")
+
+
+
+
+
+
+
+
+
+
+
+
+
