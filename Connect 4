@@ -1,0 +1,188 @@
+import numpy as np
+import pygame, sys, math
+
+yellow = (255,255,102) # background
+blue = (0,0,255) # player 1
+red = (255,0,0) # player 2
+orange = (204,102,0) # frame
+
+rows, columns = 6, 8
+
+def create_board():
+    board = np.zeros((rows, columns)) # filling the board with 0s (empty)
+    return board
+
+
+def drop_piece(board, row, col, piece): # parameters for the function
+    # parameters - variables inside of brackets when defining a function
+    board[row][col] = piece
+
+
+def is_valid_location(board, col):
+    return board[rows-1][col] == 0 # top row of the column is empty, so valid
+
+
+def get_next_open_row(board, col):
+    for r in range(rows):
+        if board[r][col] == 0: # find the first availble row from the bottom up
+            return r
+
+
+def print_board(board):
+    # this plays the array of values for the pieces in the board
+    print(np.flip(board,0))
+
+
+def winning_move(board, piece):
+    #check for horixontal locations for win
+    for c in range (columns-3):
+        for r in range(rows):
+            if board[r][c] == piece and board[r][c+1]==piece \
+               and board[r][c+2]==piece and board[r][c+3]==piece:
+                return True
+
+    #check for vertical win
+    for c in range (columns):
+        for r in range(rows-3):
+            if board[r][c] == piece and board[r+1][c]==piece \
+                and board[r][c]==piece and board[r+3][c]:
+                return True
+    
+    #check for positivly sloped diagnols)
+    for c in range (columns-3):
+        for r in range (rows-3):
+            if board[r][c]==piece and board[r+1][c+1]==piece \
+               and board [r+2][c+2]==piece and board[r+3][c+3]==piece:
+                return True
+
+def draw_board(board):
+    for c in range(columns): # each column
+        for r in range(rows): # each row
+            pygame.draw.rect(sc, orange,
+                             (c*square_size, r*square_size+square_size,
+                              square_size, square_size))
+            # (screen, colour, (x_coordinate, y_coordinate, width, height))
+            # first row has no frame (blank)
+            pygame.draw.circle(sc, yellow,
+                               (c*square_size+square_size//2,
+                               r*square_size+square_size+square_size//2), radius)
+
+    for c in range(columns):
+        for r in range(rows):
+            if board[r][c] == 1:
+                pygame.draw.circle(sc, blue,
+                                   (c*square_size+square_size//2,
+                                    h-(r*square_size+square_size//2)), radius)
+            elif board[r][c] == 2:
+                pygame.draw.circle(sc, red,
+                                   (c*square_size+square_size//2,
+                                    h-(r*square_size+square_size//2)), radius)
+
+    pygame.display.update()
+
+
+board = create_board()
+game_over = False
+turn = 0 # Player 1 is in turn 0, player 2 is in turn 1
+
+pygame.init()
+
+square_size = 96
+
+w = columns *square_size
+h = (rows+1)*square_size # include the blank row (no frame)
+
+radius = square_size//2 - 5
+
+sc = pygame.display.set_mode((w,h))
+sc.fill(yellow)
+draw_board(board)
+pygame.display.update()
+
+font = pygame.font.SysFont("monospace", 75)
+
+# main game loop
+while not game_over:
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit() # close the code
+
+        if event.type == pygame.MOUSEMOTION: # mouse movement
+            pygame.draw.rect(sc, yellow,
+                             (0,0,w,square_size)) # 0,0 is the top-left corner
+            pos_x = event.pos[0] # x-coordinate of the mouse
+            if turn==0:
+                pygame.draw.circle(sc, blue,
+                                   (pos_x, square_size//2), radius)
+            else:
+                pygame.draw.circle(sc, red,
+                                   (pos_x, square_size//2), radius)
+        pygame.display.update()
+
+        if event.type == pygame.MOUSEBUTTONDOWN: # click on mouse
+            pygame.draw.rect(sc, yellow,
+                             (0,0,w,square_size))
+            # Ask for player 1 input
+            if turn == 0:
+                pos_x = event.pos[0]
+                col = pos_x//square_size # rounded down division
+
+                if is_valid_location(board, col):
+                    row = get_next_open_row(board, col)
+                    drop_piece(board, row, col, 1)
+
+                    if winning_move(board, 1):
+                        label =  font.render ("player 1 wins!", True, blue)
+                        sc.blit(label, (40, 10))
+                        game_over = True
+                        
+            # Ask for player 2 input
+            else:
+                pos_x = event.pos[0]
+                col = pos_x//square_size
+
+                if is_valid_location(board, col):
+                    row = get_next_open_row(board, col)
+                    drop_piece(board, row, col, 2)
+
+                    if winning_move(board, 2):
+                        label = font.render("player 2 wins!", True, red)
+                        sc.blit(label, (40,10))
+                        game_over = True
+        
+            draw_board(board)
+
+            turn += 1
+            turn = turn % 2 # % is dividing the number and giving the remainder
+            # 5%2=1, 7%4=3, 99%10=9
+
+            if game_over:
+                pygame.time.wait(3000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
